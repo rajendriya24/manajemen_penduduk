@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_penduduk_provinsi_user,access.penduduk.provinsi.user,model_penduduk_provinsi,base.group_user,1,1,1,1
+access_penduduk_kabupaten_user,access.penduduk.kabupaten.user,model_penduduk_kabupaten,base.group_user,1,1,1,1
+access_penduduk_kecamatan_user,access.penduduk.kecamatan.user,model_penduduk_kecamatan,base.group_user,1,1,1,1
+access_penduduk_kelurahan_user,access.penduduk.kelurahan.user,model_penduduk_kelurahan,base.group_user,1,1,1,1
+access_penduduk_penduduk_user,access.penduduk.penduduk.user,model_penduduk_penduduk,base.group_user,1,1,1,1

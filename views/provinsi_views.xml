@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- SEARCH VIEW -->
+    <record id="view_penduduk_provinsi_search" model="ir.ui.view">
+        <field name="name">penduduk.provinsi.search</field>
+        <field name="model">penduduk.provinsi</field>
+        <field name="arch" type="xml">
+            <search string="Cari Provinsi">
+                <field name="name" string="Provinsi"/>
+                <field name="kode" string="Kode"/>
+
+                <separator/>
+
+                <filter string="Aktif" name="filter_active" domain="[('active','=',True)]"/>
+                <filter string="Arsip" name="filter_archived" domain="[('active','=',False)]"/>
+
+                <separator/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Aktif" name="group_by_active" context="{'group_by':'active'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- TREE VIEW -->
+    <record id="view_penduduk_provinsi_tree" model="ir.ui.view">
+        <field name="name">penduduk.provinsi.tree</field>
+        <field name="model">penduduk.provinsi</field>
+        <field name="arch" type="xml">
+            <tree string="Provinsi" default_order="name">
+                <field name="name"/>
+                <field name="kode"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_penduduk_provinsi_form" model="ir.ui.view">
+        <field name="name">penduduk.provinsi.form</field>
+        <field name="model">penduduk.provinsi</field>
+        <field name="arch" type="xml">
+            <form string="Provinsi">
+                <sheet>
+
+                    <header>
+                        <field name="active" invisible="1"/>
+                        <button name="toggle_active" type="object"
+                                string="Arsipkan" class="btn-secondary"
+                                invisible="not active"/>
+                        <button name="toggle_active" type="object"
+                                string="Pulihkan" class="btn-primary"
+                                invisible="active"/>
+                    </header>
+
+                    <widget name="web_ribbon" title="ARCHIVED" bg_color="danger"
+                            invisible="active"/>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Contoh: Jawa Barat"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Informasi Utama">
+                            <field name="kode" placeholder="Contoh: 32"/>
+                        </group>
+                        <group string="Status">
+                            <field name="active"/>
+                        </group>
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_penduduk_provinsi" model="ir.actions.act_window">
+        <field name="name">Provinsi</field>
+        <field name="res_model">penduduk.provinsi</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_penduduk_provinsi_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+
+    <!-- MENU -->
+    <menuitem id="menu_penduduk_root" name="Penduduk" sequence="10"/>
+    <menuitem id="menu_penduduk_master" name="Master" parent="menu_penduduk_root" sequence="10"/>
+
+    <menuitem id="menu_penduduk_provinsi"
+              name="Provinsi"
+              parent="menu_penduduk_master"
+              action="action_penduduk_provinsi"
+              sequence="10"/>
+</odoo>

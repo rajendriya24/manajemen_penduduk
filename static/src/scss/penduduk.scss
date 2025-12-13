@@ -1,0 +1,35 @@
+.penduduk_header_box {
+  margin-top: 8px;
+
+  .penduduk_header_inner{
+    display: flex;
+    align-items: flex-start;
+    gap: 1em;               /* <-- JARAK antara foto & teks */
+  }
+
+  /* ukuran frame foto */
+  .penduduk_avatar_col {
+    width: 120px;
+    flex: 0 0 120px;
+  }
+
+  /* container widget image jadi frame fixed */
+  .penduduk_avatar_field .o_field_image {
+    width: 120px !important;
+    height: 160px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    border-radius: 4px;
+  }
+
+  .penduduk_avatar_field .o_field_image img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+  }
+}

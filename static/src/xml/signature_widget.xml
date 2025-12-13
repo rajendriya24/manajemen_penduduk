@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="penduduk_management.SignaturePadField">
+    <div style="border:1px solid #ccc; border-radius:6px; padding:8px; background:#fff;">
+      <canvas t-ref="canvas" style="width:100%; height:auto; display:block; background:#fff;"></canvas>
+      <div style="margin-top:6px; display:flex; gap:8px;">
+        <button type="button" class="btn btn-secondary btn-sm" t-on-click="clearSignature">
+          Clear
+        </button>
+        <span style="font-size:12px; color:#666; align-self:center;">
+          Tanda tangan dengan mouse / sentuh layar
+        </span>
+      </div>
+    </div>
+  </t>
+</templates>

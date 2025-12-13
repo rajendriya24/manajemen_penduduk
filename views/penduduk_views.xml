@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- SEARCH -->
+    <record id="view_penduduk_penduduk_search" model="ir.ui.view">
+        <field name="name">penduduk.penduduk.search</field>
+        <field name="model">penduduk.penduduk</field>
+        <field name="arch" type="xml">
+            <search string="Cari Penduduk">
+                <field name="nik" string="NIK"/>
+                <field name="nama" string="Nama"/>
+                <field name="kabupaten_id" string="Kabupaten/Kota"/>
+                <field name="kecamatan_id" string="Kecamatan"/>
+                <field name="kelurahan_id" string="Kelurahan/Desa"/>
+                <separator/>
+                <filter name="filter_active" string="Aktif" domain="[('active','=',True)]"/>
+                <filter name="filter_archived" string="Arsip" domain="[('active','=',False)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_kab" string="Kabupaten/Kota" context="{'group_by':'kabupaten_id'}"/>
+                    <filter name="group_by_kec" string="Kecamatan" context="{'group_by':'kecamatan_id'}"/>
+                    <filter name="group_by_kel" string="Kelurahan/Desa" context="{'group_by':'kelurahan_id'}"/>
+                    <filter name="group_by_jk" string="Jenis Kelamin" context="{'group_by':'jenis_kelamin'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- TREE -->
+    <record id="view_penduduk_penduduk_tree" model="ir.ui.view">
+        <field name="name">penduduk.penduduk.tree</field>
+        <field name="model">penduduk.penduduk</field>
+        <field name="arch" type="xml">
+            <tree string="Penduduk" default_order="nik">
+                <field name="nik"/>
+                <field name="nama"/>
+                <field name="jenis_kelamin"/>
+                <field name="tanggal_lahir"/>
+                <field name="kabupaten_id"/>
+                <field name="kecamatan_id"/>
+                <field name="kelurahan_id"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- FORM -->
+    <record id="view_penduduk_penduduk_form_final" model="ir.ui.view">
+        <field name="name">penduduk.penduduk.form.final</field>
+        <field name="model">penduduk.penduduk</field>
+        <field name="arch" type="xml">
+            <form string="Penduduk">
+                <sheet>
+                    <header>
+                        <field name="active" invisible="1"/>
+                        <button name="toggle_active" type="object" string="Arsipkan"
+                                class="btn-secondary" invisible="not active"/>
+                        <button name="toggle_active" type="object" string="Pulihkan"
+                                class="btn-primary" invisible="active"/>
+                    </header>
+
+                    <widget name="web_ribbon" title="ARCHIVED" bg_color="danger" invisible="active"/>
+
+                    <!-- HEADER BOX (sejajar tombol, foto full border, jarak rapih) -->
+                    <div class="penduduk_header_box">
+                        <div class="penduduk_header_inner">
+                            <div class="penduduk_avatar_col">
+                                <field name="foto"
+                                    widget="image"
+                                    nolabel="1"
+                                    class="penduduk_avatar_field"
+                                    options="{'size': [120, 160]}"/>
+                            </div>
+
+                            <div class="penduduk_info_col">
+                                <group col="2" style="margin:0;">
+                                    <field name="nama" string="Nama Lengkap"/>
+                                    <field name="nik" string="NIK"/>
+                                </group>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <notebook>
+                        <page string="Data Pribadi &amp; Identitas" name="identity">
+                            <group>
+                                <group>
+                                    <field name="jenis_kelamin"/>
+                                    <field name="tanggal_lahir"/>
+                                    <field name="tempat_lahir"/>
+                                    <field name="agama"/>
+                                </group>
+                                <group>
+                                    <field name="gol_darah"/>
+                                    <field name="status_perkawinan"/>
+                                    <field name="pekerjaan"/>
+                                    <field name="kewarganegaraan"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Alamat Domisili" name="address">
+                            <group>
+                                <group string="Wilayah">
+                                    <field name="provinsi_id"/>
+                                    <field name="kabupaten_id"/>
+                                    <field name="kecamatan_id"/>
+                                    <field name="kelurahan_id"/>
+                                </group>
+                                <group string="Rinci">
+                                    <field name="alamat"/>
+                                    <field name="rt"/>
+                                    <field name="rw"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Tanda Tangan &amp; Catatan" name="signature_notes">
+                            <group>
+                                <group string="Tanda Tangan">
+                                    <field name="ttd" widget="signature_pad"/>
+                                    <field name="ttd_nama"/>
+                                </group>
+                                <group string="Catatan Tambahan">
+                                    <field name="catatan" placeholder="Catatan tambahan..." colspan="2"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_penduduk_penduduk" model="ir.actions.act_window">
+        <field name="name">Penduduk</field>
+        <field name="res_model">penduduk.penduduk</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_penduduk_penduduk_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_penduduk_penduduk_form_final')})]"/>
+        <field name="search_view_id" ref="view_penduduk_penduduk_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+
+    <!-- MENU -->
+    <menuitem id="menu_penduduk_penduduk" name="Penduduk"
+              parent="menu_penduduk_root" action="action_penduduk_penduduk" sequence="20"/>
+
+</odoo>
