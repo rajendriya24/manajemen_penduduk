@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from odoo.osv import expression
 
 
 class Provinsi(models.Model):
@@ -41,3 +42,24 @@ class Provinsi(models.Model):
     def toggle_active(self):
         for rec in self:
             rec.active = not rec.active
+
+    @api.model
+    def _name_search(self, name='', args=None, operator='ilike', limit=100,
+                     name_get_uid=None, order=None):
+        """
+        FIX Odoo 17: harus terima parameter `order`.
+        Plus: biar import Many2one bisa match pakai KODE juga (mis: '11').
+        """
+        args = args or []
+        domain = []
+
+        if name:
+            name = name.strip()
+            # cari by name atau by kode
+            domain = expression.OR([
+                [('name', operator, name)],
+                [('kode', operator, name)],
+            ])
+
+        recs = self.search(expression.AND([args, domain]), limit=limit, order=order)
+        return recs.ids

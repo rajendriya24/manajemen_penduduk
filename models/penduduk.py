@@ -89,7 +89,7 @@ class Penduduk(models.Model):
 
     # ✅ tanda tangan digital langsung (disimpan sebagai image base64)
     ttd = fields.Image(string='Tanda Tangan', max_width=600, max_height=300)
-    ttd_nama = fields.Char(string='Nama Penandatangan', default='Kepala Dinas')
+    ttd_nama = fields.Char(string='Nama Penandatangan')
 
     catatan = fields.Text(string='Catatan')
     active = fields.Boolean(string='Aktif', default=True)
