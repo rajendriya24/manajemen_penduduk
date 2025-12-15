@@ -16,12 +16,10 @@
         "report/ktp_template.xml",
     ],
 
-    # ✅ INI PENGGANTI inherit_id="web.assets_backend"
     "assets": {
         "web.assets_backend": [
             "penduduk_management/static/src/js/signature_widget.js",
             "penduduk_management/static/src/xml/signature_widget.xml",
-            # kalau kamu punya scss:
             "penduduk_management/static/src/scss/penduduk.scss",
         ],
     },

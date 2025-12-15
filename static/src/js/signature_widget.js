@@ -14,7 +14,6 @@ class SignaturePadField extends Component {
             const canvas = this.canvasRef.el;
             if (!canvas) return;
 
-            // ukuran canvas (stabil)
             canvas.width = 420;
             canvas.height = 160;
 
@@ -80,7 +79,6 @@ class SignaturePadField extends Component {
         onMounted(() => {
             initCanvas();
 
-            // load value pertama kali
             const val = this.props.record.data[this.props.name];
             drawFromValue(val);
 
@@ -94,7 +92,6 @@ class SignaturePadField extends Component {
             window.addEventListener("touchend", end, { passive: false });
         });
 
-        // ✅ penting: ketika buka record lagi / edit lagi, redraw dari value DB
         onWillUpdateProps((nextProps) => {
             if (!this.ctx) return;
             const currentVal = this.props.record.data[this.props.name];

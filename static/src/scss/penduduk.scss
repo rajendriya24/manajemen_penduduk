@@ -7,13 +7,11 @@
     gap: 1em;              
   }
 
-  /* ukuran frame foto */
   .penduduk_avatar_col {
     width: 120px;
     flex: 0 0 120px;
   }
 
-  /* container widget image jadi frame fixed */
   .penduduk_avatar_field .o_field_image {
     width: 120px !important;
     height: 160px !important;

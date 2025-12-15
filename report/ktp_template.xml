@@ -2,7 +2,10 @@
 <odoo>
 
   <template id="report_ektp_template" name="e-KTP Template">
-    <t t-call="web.html_container">
+    <t t-call="web.basic_layout">
+
+      <!-- Load Montserrat (butuh akses internet). Kalau offline, akan fallback ke Arial. -->
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&amp;display=swap"/>
 
       <style type="text/css"><![CDATA[
         @page { size: 160mm 100mm; margin: 0; }
@@ -12,18 +15,28 @@
           height: 100mm !important;
           margin: 0 !important;
           padding: 0 !important;
-          font-family: Arial, sans-serif;
+          font-family: "Montserrat", Arial, Helvetica, sans-serif;
           color: #000;
         }
 
-        /* Jangan ikut style A4 bawaan report */
+        .o_report_layout,
+        .o_report_layout_standard,
+        .o_report_layout_boxed,
+        .o_report_layout_clean,
+        .o_report_layout_background,
+        .article, .o_main_table {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 160mm !important;
+        }
+
         .page {
           width: 160mm !important;
           height: 100mm !important;
           min-height: 100mm !important;
           margin: 0 !important;
           padding: 0 !important;
-          overflow: hidden !important;
+          overflow: visible !important;
         }
 
         .ektp-page {
@@ -32,43 +45,44 @@
           height: 100mm;
         }
 
-        /* CARD: dipusatkan, aman dari kepotong, DAN diberi border */
-        .ktp-card {
-          width: 146mm;
-          height: 86mm;
-          margin: 7mm auto 0 auto;
-
-          padding: 4mm 4.5mm;
-          box-sizing: border-box;
-          background: #fff;
-
-          /* Border kartu (sesuai permintaan) */
-          border: 0.7mm solid #1f2d3d;
-          border-radius: 5mm;
-        }
-
-        /* Hilangkan semua border table bawaan (biar tidak muncul grid) */
-        .ktp-card table,
-        .ktp-card tr,
-        .ktp-card td,
-        .ktp-card th {
+        .ktp-body-table,
+        .ktp-body-table *,
+        .ktp-body-table table,
+        .ktp-body-table tr,
+        .ktp-body-table td,
+        .ktp-left,
+        .ktp-right {
           border: none !important;
           outline: none !important;
+          box-shadow: none !important;
+          background: transparent !important;
         }
-        .ktp-card table {
-          border-collapse: collapse !important;
-          border-spacing: 0 !important;
+
+        /* CARD */
+        .ktp-card {
+          width: 160mm;
+          height: 95mm;
+          position: absolute;
+          left: 45mm;
+          top: 29mm;
+          margin: 0;
+          padding: 4mm 4.5mm;
+          box-sizing: border-box;
+          background: #eaf4ec;
+          border: 0.6mm solid #1f2d3d;
+          border-radius: 5mm; 
         }
 
         /* HEADER */
         .ktp-header {
           text-align: center;
           margin-top: 0.5mm;
+          margin-bottom: 2.5em;
         }
         .ktp-title-1,
         .ktp-title-2 {
           font-weight: 700;
-          font-size: 11px;   /* sedikit dibesarkan biar enak */
+          font-size: 11px;
           line-height: 1.05;
         }
 
@@ -90,9 +104,9 @@
           text-align: center;
         }
 
-        /* Teks Kabupaten disejajarkan dengan foto (di kolom kanan atas) */
+        /* Kabupaten */
         .ktp-region-right {
-          font-size: 9px;      /* dibesarkan */
+          font-size: 9px;
           font-weight: 700;
           line-height: 1.05;
           text-transform: capitalize;
@@ -109,7 +123,7 @@
         .ktp-table td {
           padding: 0.55mm 0;
           vertical-align: top;
-          font-size: 8.5px;   /* sedikit dibesarkan biar lebih terbaca */
+          font-size: 8.5px;
           line-height: 1.15;
         }
         .ktp-label {
@@ -123,10 +137,11 @@
         }
         .ktp-value {
           word-break: break-word;
+          font-weight: 400;
         }
         .ktp-nik {
           font-weight: 800;
-          letter-spacing: 0.2px;
+          letter-spacing: 1px;
         }
         .gap {
           height: 1.2mm;
@@ -140,7 +155,6 @@
           overflow: hidden;
           border-radius: 2mm;
           background: #fff;
-          border: 0.35mm solid #000; /* foto tetap ada frame tipis */
           box-sizing: border-box;
         }
         .ktp-photo img {
@@ -148,7 +162,7 @@
           height: 100%;
         }
 
-        /* TTD - BORDER DIHILANGKAN (sesuai permintaan) */
+        /* TTD - tanpa border */
         .sign-title {
           margin-top: 2mm;
           font-size: 7px;
@@ -157,12 +171,10 @@
         .sign-box {
           width: 26mm;
           height: 16mm;
-          margin: 1mm auto 0 auto;
-
-          border: none;           /* ini yang menghilangkan border TTD */
+          margin: 0.5em auto 0 auto;
+          border: none;
           border-radius: 0;
-          background: #fff;
-
+          background: transparent;
           overflow: hidden;
           box-sizing: border-box;
         }
@@ -173,7 +185,6 @@
           height: auto;
         }
         .sign-name {
-          margin-top: 1mm;
           font-size: 7px;
           font-weight: 700;
           line-height: 1.1;
@@ -183,8 +194,6 @@
       ]]></style>
 
       <t t-foreach="docs" t-as="o">
-
-        <!-- SAFE VALUE supaya tidak error kalau field belum ada -->
         <t t-set="kabupaten_name"
            t-value="(o._fields.get('kabupaten_id') and o.kabupaten_id and (o.kabupaten_id.name or '')) or (o._fields.get('kabupaten') and (o.kabupaten or '')) or ''"/>
 
@@ -303,8 +312,6 @@
 
                 <!-- RIGHT -->
                 <td class="ktp-right">
-
-                  <!-- Kabupaten disejajarkan dengan foto (di atas foto) -->
                   <div class="ktp-region-right" t-if="kabupaten_display">
                     <t t-esc="kabupaten_display"/>
                   </div>

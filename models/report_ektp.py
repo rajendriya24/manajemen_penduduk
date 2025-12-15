@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
 from odoo import models, api
 import base64
 
 class ReportEktp(models.AbstractModel):
-    # HARUS MATCH report_name di ir.actions.report:
-    # penduduk_management.report_ektp_template
     _name = 'report.penduduk_management.report_ektp_template'
     _description = 'Report e-KTP'
 
