@@ -12,7 +12,6 @@
         "views/kecamatan_views.xml",
         "views/kelurahan_views.xml",
         "views/penduduk_views.xml",
-        "report/paperformat.xml",
         "report/ktp_report.xml",
         "report/ktp_template.xml",
     ],

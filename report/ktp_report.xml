@@ -1,20 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+  <data>
 
-  <record id="action_report_ektp" model="ir.actions.report">
-    <field name="name">Cetak e-KTP</field>
-    <field name="model">penduduk.penduduk</field>
-    <field name="report_type">qweb-pdf</field>
+    <!-- Paperformat: Landscape 160x100 mm -->
+    <record id="paperformat_ektp_landscape" model="report.paperformat">
+      <field name="name">e-KTP Landscape (160x100)</field>
+      <field name="default" eval="False"/>
+      <field name="format">custom</field>
 
-    <field name="report_name">penduduk_management.report_ektp_template</field>
-    <field name="report_file">penduduk_management.report_ektp_template</field>
+      <!-- ukuran kertas (mm) -->
+      <field name="page_width">160</field>
+      <field name="page_height">100</field>
 
-    <field name="paperformat_id" ref="penduduk_management.paperformat_ektp_landscape"/>
+      <!-- Landscape (biar konsisten) -->
+      <field name="orientation">Landscape</field>
 
-    <field name="binding_model_id" ref="model_penduduk_penduduk"/>
-    <field name="binding_type">report</field>
+      <!-- margin 0 biar benar-benar pas -->
+      <field name="margin_top">0</field>
+      <field name="margin_bottom">0</field>
+      <field name="margin_left">0</field>
+      <field name="margin_right">0</field>
 
-    <field name="print_report_name">'e-KTP - %s' % (object.nik or '')</field>
-  </record>
+      <field name="header_line" eval="False"/>
+      <field name="header_spacing">0</field>
 
+      <!-- penting untuk scaling wkhtmltopdf -->
+      <field name="disable_shrinking" eval="True"/>
+      <field name="dpi">150</field>
+    </record>
+
+    <!-- Action report -->
+    <record id="action_report_ektp" model="ir.actions.report">
+      <field name="name">Cetak e-KTP</field>
+      <field name="model">penduduk.penduduk</field>
+      <field name="report_type">qweb-pdf</field>
+
+      <field name="report_name">penduduk_management.report_ektp_template</field>
+      <field name="report_file">penduduk_management.report_ektp_template</field>
+
+      <field name="paperformat_id" ref="penduduk_management.paperformat_ektp_landscape"/>
+
+      <field name="binding_model_id" ref="model_penduduk_penduduk"/>
+      <field name="binding_type">report</field>
+
+      <field name="print_report_name">'e-KTP - %s' % (object.nik or '')</field>
+    </record>
+
+  </data>
 </odoo>
