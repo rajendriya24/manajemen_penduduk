@@ -1,180 +1,327 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+
   <template id="report_ektp_template" name="e-KTP Template">
     <t t-call="web.html_container">
+
+      <style type="text/css"><![CDATA[
+        @page { size: 160mm 100mm; margin: 0; }
+
+        html, body {
+          width: 160mm !important;
+          height: 100mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          font-family: Arial, sans-serif;
+          color: #000;
+        }
+
+        /* Jangan ikut style A4 bawaan report */
+        .page {
+          width: 160mm !important;
+          height: 100mm !important;
+          min-height: 100mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: hidden !important;
+        }
+
+        .ektp-page {
+          position: relative;
+          width: 160mm;
+          height: 100mm;
+        }
+
+        /* CARD: dipusatkan, aman dari kepotong, DAN diberi border */
+        .ktp-card {
+          width: 146mm;
+          height: 86mm;
+          margin: 7mm auto 0 auto;
+
+          padding: 4mm 4.5mm;
+          box-sizing: border-box;
+          background: #fff;
+
+          /* Border kartu (sesuai permintaan) */
+          border: 0.7mm solid #1f2d3d;
+          border-radius: 5mm;
+        }
+
+        /* Hilangkan semua border table bawaan (biar tidak muncul grid) */
+        .ktp-card table,
+        .ktp-card tr,
+        .ktp-card td,
+        .ktp-card th {
+          border: none !important;
+          outline: none !important;
+        }
+        .ktp-card table {
+          border-collapse: collapse !important;
+          border-spacing: 0 !important;
+        }
+
+        /* HEADER */
+        .ktp-header {
+          text-align: center;
+          margin-top: 0.5mm;
+        }
+        .ktp-title-1,
+        .ktp-title-2 {
+          font-weight: 700;
+          font-size: 11px;   /* sedikit dibesarkan biar enak */
+          line-height: 1.05;
+        }
+
+        /* BODY */
+        .ktp-body-table {
+          width: 100%;
+          table-layout: fixed;
+          margin-top: 2mm;
+        }
+
+        .ktp-left {
+          vertical-align: top;
+          padding-right: 2.5mm;
+        }
+
+        .ktp-right {
+          width: 36mm;
+          vertical-align: top;
+          text-align: center;
+        }
+
+        /* Teks Kabupaten disejajarkan dengan foto (di kolom kanan atas) */
+        .ktp-region-right {
+          font-size: 9px;      /* dibesarkan */
+          font-weight: 700;
+          line-height: 1.05;
+          text-transform: capitalize;
+          margin-bottom: 1.5mm;
+          white-space: normal;
+          word-break: break-word;
+        }
+
+        /* TABEL DATA KIRI */
+        .ktp-table {
+          width: 100%;
+          table-layout: fixed;
+        }
+        .ktp-table td {
+          padding: 0.55mm 0;
+          vertical-align: top;
+          font-size: 8.5px;   /* sedikit dibesarkan biar lebih terbaca */
+          line-height: 1.15;
+        }
+        .ktp-label {
+          width: 28mm;
+          font-weight: 700;
+        }
+        .ktp-colon {
+          width: 3mm;
+          text-align: center;
+          font-weight: 700;
+        }
+        .ktp-value {
+          word-break: break-word;
+        }
+        .ktp-nik {
+          font-weight: 800;
+          letter-spacing: 0.2px;
+        }
+        .gap {
+          height: 1.2mm;
+        }
+
+        /* FOTO */
+        .ktp-photo {
+          width: 26mm;
+          height: 32mm;
+          margin: 0 auto;
+          overflow: hidden;
+          border-radius: 2mm;
+          background: #fff;
+          border: 0.35mm solid #000; /* foto tetap ada frame tipis */
+          box-sizing: border-box;
+        }
+        .ktp-photo img {
+          width: 100%;
+          height: 100%;
+        }
+
+        /* TTD - BORDER DIHILANGKAN (sesuai permintaan) */
+        .sign-title {
+          margin-top: 2mm;
+          font-size: 7px;
+          font-weight: 700;
+        }
+        .sign-box {
+          width: 26mm;
+          height: 16mm;
+          margin: 1mm auto 0 auto;
+
+          border: none;           /* ini yang menghilangkan border TTD */
+          border-radius: 0;
+          background: #fff;
+
+          overflow: hidden;
+          box-sizing: border-box;
+        }
+        .sign-box img {
+          max-width: 100%;
+          max-height: 100%;
+          width: auto;
+          height: auto;
+        }
+        .sign-name {
+          margin-top: 1mm;
+          font-size: 7px;
+          font-weight: 700;
+          line-height: 1.1;
+          white-space: normal;
+          word-break: break-word;
+        }
+      ]]></style>
+
       <t t-foreach="docs" t-as="o">
 
-        <style>
-          /* paksa ukuran halaman wkhtmltopdf */
-          @page { size: 160mm 100mm; margin: 0; }
-          html, body { margin:0 !important; padding:0 !important; }
+        <!-- SAFE VALUE supaya tidak error kalau field belum ada -->
+        <t t-set="kabupaten_name"
+           t-value="(o._fields.get('kabupaten_id') and o.kabupaten_id and (o.kabupaten_id.name or '')) or (o._fields.get('kabupaten') and (o.kabupaten or '')) or ''"/>
 
-          /* buang margin bawaan Odoo */
-          .o_report_layout, .o_report_layout_standard, .o_report_layout_background,
-          .o_report_layout .page {
-            margin: 0 !important;
-            padding: 0 !important;
-            border: 0 !important;
-            box-shadow: none !important;
-          }
+        <t t-set="kabupaten_display"
+           t-value="(kabupaten_name and ((kabupaten_name.lower().startswith('kab') or kabupaten_name.lower().startswith('kota')) and kabupaten_name or ('Kabupaten %s' % kabupaten_name))) or ''"/>
 
-          /* satu halaman fix */
-          .page {
-            width: 160mm;
-            height: 100mm;
-            margin: 0 !important;
-            padding: 0 !important;
-            position: relative;      /* penting untuk absolute center */
-            overflow: hidden;
-          }
+        <t t-set="kelurahan_name"
+           t-value="(o._fields.get('kelurahan_id') and o.kelurahan_id and (o.kelurahan_id.name or '')) or (o._fields.get('kelurahan') and (o.kelurahan or '')) or ''"/>
 
-          /* Kartu e-KTP (ukuran asli) lalu diperbesar via scale */
-          .ktp-card {
-            width: 86mm;
-            height: 54mm;
+        <t t-set="kecamatan_name"
+           t-value="(o._fields.get('kecamatan_id') and o.kecamatan_id and (o.kecamatan_id.name or '')) or (o._fields.get('kecamatan') and (o.kecamatan or '')) or ''"/>
 
-            position: absolute;
-            left: 50%;
-            top: 50%;
+        <t t-set="rt_val" t-value="o._fields.get('rt') and (o.rt or '') or ''"/>
+        <t t-set="rw_val" t-value="o._fields.get('rw') and (o.rw or '') or ''"/>
+        <t t-set="rt_rw"  t-value="(rt_val or rw_val) and ('%s/%s' % (rt_val, rw_val)) or ''"/>
 
-            /* pusat + pembesaran */
-            transform: translate(-50%, -50%) scale(1.35);
-            transform-origin: center center;
+        <t t-set="gol_darah" t-value="o._fields.get('gol_darah') and (o.gol_darah or '') or ''"/>
+        <t t-set="agama"     t-value="o._fields.get('agama') and (o.agama or '') or ''"/>
 
-            box-sizing: border-box;
-            border: 0.35mm solid #1f2d3d;
-            border-radius: 2.2mm;
-            padding: 3.0mm 3.0mm 1.6mm 3.0mm;
+        <t t-set="status_perkawinan"
+           t-value="(o._fields.get('status') and (o.status or '')) or (o._fields.get('status_perkawinan') and (o.status_perkawinan or '')) or ''"/>
 
-            font-family: Arial, sans-serif;
-            font-size: 6.6px;
-            line-height: 1.15;
-            background: #fff;
+        <t t-set="pekerjaan"       t-value="o._fields.get('pekerjaan') and (o.pekerjaan or '') or ''"/>
+        <t t-set="kewarganegaraan" t-value="o._fields.get('kewarganegaraan') and (o.kewarganegaraan or '') or ''"/>
 
-            text-align: left; /* ini biar isi tidak ikut center */
-            overflow: hidden;
-          }
+        <t t-set="ttd_img"
+           t-value="(o._fields.get('tanda_tangan') and o.tanda_tangan) or (o._fields.get('signature') and o.signature) or (o._fields.get('ttd') and o.ttd) or False"/>
 
-          .hdr {
-            text-align: center; /* header saja yang center */
-            font-weight: 700;
-            font-size: 8px;
-            line-height: 1.05;
-            margin: 0.2mm 0 0.6mm 0;
-          }
-
-          table.layout { width: 100%; border-collapse: collapse; table-layout: fixed; }
-          table.layout td { vertical-align: top; }
-
-          .left  { width: 54mm; }
-          .right { width: 26mm; text-align: center; }
-
-          table.dt { width: 100%; border-collapse: collapse; }
-          table.dt td { padding: 0; }
-
-          .lbl { width: 21mm; font-weight: 700; white-space: nowrap; }
-          .col { width: 2mm; text-align: center; white-space: nowrap; }
-          .val { word-break: break-word; overflow-wrap: anywhere; }
-
-          .kab {
-            font-size: 6.4px;
-            font-weight: 700;
-            margin-bottom: 0.8mm;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-
-          /* FOTO (lebih kecil & stabil) */
-          .photo {
-            width: 15mm;
-            height: 17mm;
-            border: 0.35mm solid #1f2d3d;
-            border-radius: 0.8mm;
-            margin: 0 auto;
-            overflow: hidden;
-            background: #fff;
-          }
-          .photo img { width:100%; height:100%; object-fit: cover; display:block; }
-
-          .sigtitle { margin-top: 0.6mm; font-size: 6px; font-weight: 700; }
-          .sigbox {
-            width: 15mm;
-            height: 7mm;
-            border: 0.35mm solid #1f2d3d;
-            border-radius: 0.8mm;
-            margin: 0.3mm auto 0 auto;
-            overflow: hidden;
-            background: #fff;
-          }
-          .sigbox img { width:100%; height:100%; object-fit: contain; display:block; }
-
-          .signame {
-            font-size: 6px;
-            margin-top: 0.2mm;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-        </style>
-
-        <div class="page">
+        <div class="page ektp-page">
           <div class="ktp-card">
 
-            <div class="hdr">
-              KARTU TANDA PENDUDUK<br/>
-              REPUBLIK INDONESIA
+            <!-- HEADER -->
+            <div class="ktp-header">
+              <div class="ktp-title-1">KARTU TANDA PENDUDUK</div>
+              <div class="ktp-title-2">REPUBLIK INDONESIA</div>
             </div>
 
-            <table class="layout">
+            <!-- BODY -->
+            <table class="ktp-body-table">
               <tr>
-                <td class="left">
-                  <table class="dt">
-                    <tr><td class="lbl">NIK</td><td class="col">:</td><td class="val"><b><t t-esc="o.nik or ''"/></b></td></tr>
-                    <tr><td class="lbl">Nama</td><td class="col">:</td><td class="val"><b><t t-esc="o.nama or ''"/></b></td></tr>
+                <!-- LEFT -->
+                <td class="ktp-left">
+                  <table class="ktp-table">
                     <tr>
-                      <td class="lbl">Tmp/Tgl Lahir</td><td class="col">:</td>
-                      <td class="val">
-                        <t t-esc="o.tempat_lahir or ''"/>
-                        <t t-if="o.tanggal_lahir">, <t t-esc="o.tanggal_lahir"/></t>
+                      <td class="ktp-label">NIK</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value ktp-nik"><t t-esc="o.nik or ''"/></td>
+                    </tr>
+                    <tr>
+                      <td class="ktp-label">Nama</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><t t-esc="o.nama or ''"/></td>
+                    </tr>
+                    <tr>
+                      <td class="ktp-label">Tmp/Tgl Lahir</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value">
+                        <t t-esc="o.tempat_lahir or ''"/><t t-if="o.tempat_lahir and o.tanggal_lahir">, </t><t t-esc="o.tanggal_lahir or ''"/>
                       </td>
                     </tr>
-                    <tr><td class="lbl">Jenis Kelamin</td><td class="col">:</td><td class="val"><t t-esc="dict(o._fields['jenis_kelamin'].selection).get(o.jenis_kelamin,'')"/></td></tr>
-                    <tr><td class="lbl">Gol. Darah</td><td class="col">:</td><td class="val"><t t-esc="o.gol_darah or ''"/></td></tr>
+                    <tr>
+                      <td class="ktp-label">Jenis Kelamin</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><span t-field="o.jenis_kelamin"/></td>
+                    </tr>
+                    <tr>
+                      <td class="ktp-label">Gol. Darah</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><t t-esc="gol_darah"/></td>
+                    </tr>
+                    <tr>
+                      <td class="ktp-label">Alamat</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><t t-esc="o.alamat or ''"/></td>
+                    </tr>
 
-                    <tr><td class="lbl">Alamat</td><td class="col">:</td><td class="val"><t t-esc="o.alamat or ''"/></td></tr>
-                    <tr><td class="lbl">RT/RW</td><td class="col">:</td><td class="val"><t t-esc="o.rt or ''"/>/<t t-esc="o.rw or ''"/></td></tr>
-                    <tr><td class="lbl">Kel/Desa</td><td class="col">:</td><td class="val"><t t-esc="o.kelurahan_id.name or ''"/></td></tr>
-                    <tr><td class="lbl">Kecamatan</td><td class="col">:</td><td class="val"><t t-esc="o.kecamatan_id.name or ''"/></td></tr>
+                    <tr><td class="gap" colspan="3"></td></tr>
 
-                    <tr><td style="height:0.8mm" colspan="3"/></tr>
-
-                    <tr><td class="lbl">Agama</td><td class="col">:</td><td class="val"><t t-esc="dict(o._fields['agama'].selection).get(o.agama,'')"/></td></tr>
-                    <tr><td class="lbl">Status</td><td class="col">:</td><td class="val"><t t-esc="dict(o._fields['status_perkawinan'].selection).get(o.status_perkawinan,'')"/></td></tr>
-                    <tr><td class="lbl">Pekerjaan</td><td class="col">:</td><td class="val"><t t-esc="o.pekerjaan or ''"/></td></tr>
-                    <tr><td class="lbl">Kewarganegaraan</td><td class="col">:</td><td class="val"><t t-esc="(o.kewarganegaraan or '').upper()"/></td></tr>
+                    <tr>
+                      <td class="ktp-label">RT/RW</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><t t-esc="rt_rw"/></td>
+                    </tr>
+                    <tr>
+                      <td class="ktp-label">Kel/Desa</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><t t-esc="kelurahan_name"/></td>
+                    </tr>
+                    <tr>
+                      <td class="ktp-label">Kecamatan</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><t t-esc="kecamatan_name"/></td>
+                    </tr>
+                    <tr>
+                      <td class="ktp-label">Agama</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><t t-esc="agama"/></td>
+                    </tr>
+                    <tr>
+                      <td class="ktp-label">Status</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><t t-esc="status_perkawinan"/></td>
+                    </tr>
+                    <tr>
+                      <td class="ktp-label">Pekerjaan</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><t t-esc="pekerjaan"/></td>
+                    </tr>
+                    <tr>
+                      <td class="ktp-label">Kewarganegaraan</td>
+                      <td class="ktp-colon">:</td>
+                      <td class="ktp-value"><t t-esc="kewarganegaraan"/></td>
+                    </tr>
                   </table>
                 </td>
 
-                <td class="right">
-                  <div class="kab"><t t-esc="o.kabupaten_id.name or ''"/></div>
+                <!-- RIGHT -->
+                <td class="ktp-right">
 
-                  <div class="photo">
-                    <t t-if="o.foto">
-                      <img t-att-src="image_data_uri(o.foto)" alt="foto"/>
-                    </t>
+                  <!-- Kabupaten disejajarkan dengan foto (di atas foto) -->
+                  <div class="ktp-region-right" t-if="kabupaten_display">
+                    <t t-esc="kabupaten_display"/>
                   </div>
 
-                  <div class="sigtitle">Tanda Tangan</div>
-
-                  <div class="sigbox">
-                    <t t-if="o.ttd">
-                      <img t-att-src="image_data_uri(o.ttd)" alt="ttd"/>
-                    </t>
+                  <div class="ktp-photo">
+                    <img t-if="o.foto" t-att-src="image_data_uri(o.foto)" alt="Foto"/>
                   </div>
 
-                  <div class="signame"><t t-esc="o.ttd_nama or ''"/></div>
+                  <div class="sign-title">Tanda Tangan</div>
+
+                  <div class="sign-box">
+                    <img t-if="ttd_img" t-att-src="image_data_uri(ttd_img)" alt="Tanda Tangan"/>
+                  </div>
+
+                  <div class="sign-name">
+                    <t t-esc="o.nama or ''"/>
+                  </div>
                 </td>
               </tr>
             </table>
@@ -185,4 +332,5 @@
       </t>
     </t>
   </template>
+
 </odoo>

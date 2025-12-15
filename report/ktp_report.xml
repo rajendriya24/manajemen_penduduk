@@ -2,20 +2,19 @@
 <odoo>
   <data>
 
-    <!-- Paperformat: Landscape 160x100 mm -->
-    <record id="paperformat_ektp_landscape" model="report.paperformat">
-      <field name="name">e-KTP Landscape (160x100)</field>
+    <record id="paperformat_ektp_160x100" model="report.paperformat">
+      <field name="name">e-KTP 160x100</field>
       <field name="default" eval="False"/>
       <field name="format">custom</field>
 
-      <!-- ukuran kertas (mm) -->
+      <!-- Ukuran mm -->
       <field name="page_width">160</field>
       <field name="page_height">100</field>
 
-      <!-- Landscape (biar konsisten) -->
-      <field name="orientation">Landscape</field>
+      <!-- Aman untuk custom size -->
+      <field name="orientation">Portrait</field>
 
-      <!-- margin 0 biar benar-benar pas -->
+      <!-- Margin benar-benar 0 -->
       <field name="margin_top">0</field>
       <field name="margin_bottom">0</field>
       <field name="margin_left">0</field>
@@ -24,25 +23,21 @@
       <field name="header_line" eval="False"/>
       <field name="header_spacing">0</field>
 
-      <!-- penting untuk scaling wkhtmltopdf -->
-      <field name="disable_shrinking" eval="True"/>
       <field name="dpi">150</field>
+
+      <!-- Kamu boleh tetap True, tapi UI harus “lebih kecil” biar gak kepotong -->
+      <field name="disable_shrinking" eval="True"/>
     </record>
 
-    <!-- Action report -->
     <record id="action_report_ektp" model="ir.actions.report">
       <field name="name">Cetak e-KTP</field>
       <field name="model">penduduk.penduduk</field>
       <field name="report_type">qweb-pdf</field>
-
       <field name="report_name">penduduk_management.report_ektp_template</field>
       <field name="report_file">penduduk_management.report_ektp_template</field>
-
-      <field name="paperformat_id" ref="penduduk_management.paperformat_ektp_landscape"/>
-
+      <field name="paperformat_id" ref="penduduk_management.paperformat_ektp_160x100"/>
       <field name="binding_model_id" ref="model_penduduk_penduduk"/>
       <field name="binding_type">report</field>
-
       <field name="print_report_name">'e-KTP - %s' % (object.nik or '')</field>
     </record>
 
